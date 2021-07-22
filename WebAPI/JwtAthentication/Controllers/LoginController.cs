@@ -30,13 +30,13 @@ namespace WebAPI.JwtAthentication.Controllers
         [Consumes(MediaTypeNames.Application.Json)]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        public async Task<ActionResult> Login(UserModel login)
+        public async Task<ActionResult> Login(LoginModel login)
         {
             User user = await AuthenticateUser(login);
 
             if (user != null)
             {
-                string tokenString = 
+                string tokenString =
                     JWTServices.GenerateJsonWebToken(user, _config);
 
                 return Ok(new { token = tokenString, ID = user.ID });
@@ -45,7 +45,7 @@ namespace WebAPI.JwtAthentication.Controllers
             return Unauthorized();
         }
 
-        private async Task<User> AuthenticateUser(UserModel login)
+        private async Task<User> AuthenticateUser(LoginModel login)
         {
             return await _users.Entity
                                .GetOneWithOptions<User>(u =>

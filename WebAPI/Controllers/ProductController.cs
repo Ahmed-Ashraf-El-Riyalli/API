@@ -32,7 +32,7 @@ namespace WebAPI.Controllers
         }
 
         [Authorize]
-        [HttpGet("{id}")]        
+        [HttpGet("{id}")]    
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult> GetProductById(int id) 

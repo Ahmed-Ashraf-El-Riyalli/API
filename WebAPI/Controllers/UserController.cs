@@ -22,8 +22,8 @@ namespace WebAPI.Controllers
         }
 
 
-        [Authorize]
         [HttpGet]
+        [Authorize]
         [ProducesResponseType(StatusCodes.Status200OK)]
         public ActionResult GetCurrentUser()
         {
@@ -47,7 +47,15 @@ namespace WebAPI.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult> GetUserById(int id)
         {
-            User user = await _users.Entity.GetByID(id);
+            var user =
+                await _users.Entity.GetOneWithOptions(u => new
+                {
+                    Name = u.Name,
+                    Age = u.Age,
+                    Address = u.Address,
+                    Email = u.Email
+                },
+                u => u.ID == id);
 
             if (user != null)
                 return Ok(user);

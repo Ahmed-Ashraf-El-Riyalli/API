@@ -26,8 +26,8 @@ namespace WebAPI.JwtAthentication.Controllers
         }
 
 
-        [HttpPost("IsUniqueEmail")]
         [AllowAnonymous]
+        [HttpPost("IsUniqueEmail")]
         [Consumes(MediaTypeNames.Application.Json)]
         [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task IsUniqueEmail(EmailModel email)
@@ -42,18 +42,10 @@ namespace WebAPI.JwtAthentication.Controllers
             await HttpResponseJsonExtensions.WriteAsJsonAsync(Response, new { isUnique = isUnique });
         }
 
-        [HttpGet("IsUniqueEmailServerValidation")]
-        public async Task IsUniqueEmailServerValidation(string email)
+        private async Task<string> IsUniqueEmail(string email)
         {
-            string emailTobeCompared = email.Trim().ToLower();
-
-            string localEmail = await _users.Entity
-                .GetOneWithOptions<string>(u => u.Email, u => u.Email == emailTobeCompared);
-
-            if (localEmail == null)
-                await HttpResponseJsonExtensions.WriteAsJsonAsync(Response, true);
-
-            await HttpResponseJsonExtensions.WriteAsJsonAsync(Response, false);
+            return await _users.Entity
+                .GetOneWithOptions<string>(u => u.Email, u => u.Email == email);
         }
 
         [HttpPost]
@@ -61,18 +53,39 @@ namespace WebAPI.JwtAthentication.Controllers
         [Consumes(MediaTypeNames.Application.Json)]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<ActionResult> CreateUser(User user)
+        public async Task<ActionResult> CreateUser(RegistrationModel userInfo)
         {
-            user.Email = user.Email.Trim().ToLower();
+            if (ModelState.IsValid)
+            {
+                userInfo.Email = userInfo.Email.Trim().ToLower();
 
-            await _users.Entity.Create(user);
+                // if someone tried to register through fiddler or Swagger UI
+                // we will lose our Asynchronous Email Validation
+                if(await IsUniqueEmail(userInfo.Email) != null)
+                {
+                    return BadRequest("This Email is Already Existing !!");
+                }
 
-            await _users.Save();
+                User user = new User()
+                {
+                    Name = userInfo.Name,
+                    Age = userInfo.Age,
+                    Address = userInfo.Address,
+                    Email = userInfo.Email,
+                    Password = userInfo.Password
+                };
 
-            string tokenString =
-                JWTServices.GenerateJsonWebToken(user, _config);
+                await _users.Entity.Create(user);
 
-            return Ok(new { token = tokenString, ID = user.ID });
+                await _users.Save();
+
+                string tokenString =
+                    JWTServices.GenerateJsonWebToken(user, _config);
+
+                return Ok(new { token = tokenString, ID = user.ID });
+            }
+
+            return BadRequest();
         }
     }
 }
