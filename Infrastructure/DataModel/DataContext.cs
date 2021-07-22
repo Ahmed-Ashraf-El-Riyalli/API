@@ -23,28 +23,6 @@ namespace Infrastructure.DataModel
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<User>()
-                        .Property(u => u.Name)
-                        .IsRequired();
-
-            modelBuilder.Entity<User>()
-                        .Property(u => u.Age)
-                        .IsRequired();
-
-            modelBuilder.Entity<User>()
-                        .Property(u => u.Email)
-                        .IsRequired();
-
-            modelBuilder.Entity<User>()
-                        .Property(u => u.Password)
-                        .IsRequired();
-
-            modelBuilder.Entity<User>()
-                        .Ignore(u => u.ConfirmPassword)
-                        .Property(u => u.ConfirmPassword)
-                        .IsRequired();
-
-
             base.OnModelCreating(modelBuilder);
         }
 

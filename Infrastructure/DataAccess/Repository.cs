@@ -29,7 +29,15 @@ namespace Infrastructure.DataAccess
 
         public async Task<T> GetByID(object id)
         {
-            return await _table.FindAsync(id);
+            try
+            {
+                return await _table.FindAsync(id);
+            }
+            catch(Exception e)
+            {
+                Console.WriteLine($"Error: {e.Message}");
+                return null;
+            }
         }
 
         public async Task<IEnumerable<TOut>> GetAllWithOptions<TOut>(

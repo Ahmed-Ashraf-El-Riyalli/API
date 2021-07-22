@@ -1,7 +1,7 @@
 ﻿
 namespace WebAPI.JwtAthentication.Models
 {
-    public class UserModel
+    public class LoginModel
     {
         public string Email { get; set; }
         public string Password { get; set; }
